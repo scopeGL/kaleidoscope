@@ -21,20 +21,12 @@
         gl_Position = vec4(position, 1.0);
       }
     `,
-    fragmentShader: `
-      uniform float u_time;
-      uniform vec2 u_resolution;
+   fragmentShader: `
+  void main() {
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+  }
+`
 
-      void main() {
-        vec2 uv = gl_FragCoord.xy / u_resolution;
-        gl_FragColor = vec4(
-          uv.x,
-          uv.y,
-          0.5 + 0.5 * sin(u_time),
-          1.0
-        );
-      }
-    `
   });
 
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
