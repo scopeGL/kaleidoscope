@@ -1,50 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Kaleidoscopio WebGL</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: black;
-    }
-    canvas {
-      display: block;
-    }
-  </style>
+  <title>OK</title>
 </head>
-<body>
-
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
-<script>
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  const uniforms = {
-    u_time: { value: 0.0 }
-  };
-
-  const material = new THREE.ShaderMaterial({
-    uniforms,
-    vertexShader: `
-      void main() {
-        gl_Position = vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      precision mediump float;
-      uniform float u_time;
-
-      void main() {
-        vec3 color = vec3(
-          0.5 + 0.5 * sin(u_time),
-          0.5 + 0.5 * sin(u_time + 2_*
+<body style="background:red;color:white;font-size:40px">
+  FUNCIONA
+</body>
+</html>
