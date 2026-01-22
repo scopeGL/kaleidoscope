@@ -1,22 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Caleidoscopio WebGL HD</title>
-
+  <meta charset="UTF-8">
+  <title>Caleidoscopio WebGL Nítido</title>
   <style>
     html, body {
       margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
       background: black;
     }
-
-    canvas {
-      display: block;
-    }
+    canvas { display: block; }
   </style>
 </head>
 <body>
@@ -24,13 +19,9 @@
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
 <script>
-  // Escena
   const scene = new THREE.Scene();
-
-  // Cámara ortográfica (pantalla completa)
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  // Renderer con mejor calidad
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance"
@@ -40,24 +31,20 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   document.body.appendChild(renderer.domElement);
 
-  // Uniforms
   const uniforms = {
-    u_time: { value: 0.0 },
+    u_time: { value: 0 },
     u_resolution: {
       value: new THREE.Vector2(window.innerWidth, window.innerHeight)
     }
   };
 
-  // Material con shader de caleidoscopio
   const material = new THREE.ShaderMaterial({
-    uniforms: uniforms,
-
+    uniforms,
     vertexShader: `
       void main() {
         gl_Position = vec4(position, 1.0);
       }
     `,
-
     fragmentShader: `
       precision mediump float;
 
@@ -66,44 +53,45 @@
 
       #define PI 3.14159265359
 
-      void main() {
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
 
-        // Coordenadas normalizadas con corrección de aspecto
+      void main() {
         vec2 uv = (gl_FragCoord.xy / u_resolution.xy) * 2.0 - 1.0;
         uv.x *= u_resolution.x / u_resolution.y;
 
-        // Coordenadas polares
         float r = length(uv);
         float a = atan(uv.y, uv.x);
 
-        // Cantidad de espejos
-        float segments = 12.0;
+        float segments = 10.0;
         float slice = 2.0 * PI / segments;
 
-        // Efecto caleidoscopio
         a = mod(a, slice);
         a = abs(a - slice * 0.5);
 
-        // Volver a cartesiano
         vec2 p = vec2(cos(a), sin(a)) * r;
 
-        // Patrón más definido
-        float v = sin(18.0 * p.x + u_time * 0.8)
-                * cos(18.0 * p.y - u_time * 0.8);
+        // Facetas tipo vidrio
+        float cell = floor(p.x * 6.0) + floor(p.y * 6.0);
+        float rnd = hash(vec2(cell));
 
-        // Color armónico
-        vec3 color = vec3(
-          0.5 + 0.5 * sin(v),
-          0.5 + 0.5 * sin(v + 2.0),
-          0.5 + 0.5 * sin(v + 4.0)
-        );
+        float edge = fract(p.x * 6.0);
+        edge = smoothstep(0.02, 0.08, edge) *
+               smoothstep(0.98, 0.92, edge);
+
+        vec3 base = vec3(rnd, rnd * 0.6, 1.0 - rnd);
+
+        vec3 color = mix(vec3(0.0), base, edge);
+
+        // Gamma correction (clave para nitidez visual)
+        color = pow(color, vec3(0.75));
 
         gl_FragColor = vec4(color, 1.0);
       }
     `
   });
 
-  // Plano pantalla completa
   const quad = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
     material
@@ -111,7 +99,6 @@
 
   scene.add(quad);
 
-  // Resize
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -121,7 +108,6 @@
     );
   });
 
-  // Animación
   function animate(time) {
     uniforms.u_time.value = time * 0.001;
     renderer.render(scene, camera);
