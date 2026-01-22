@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kaleidoscopio WebGL</title>
+  <meta charset="UTF-8">
+  <title>WebGL Test</title>
   <style>
     html, body {
       margin: 0;
@@ -22,54 +22,38 @@
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
 <script>
-  // Escena
   const scene = new THREE.Scene();
 
-  // Cámara ortográfica
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-  camera.position.z = 1;
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  // Renderer
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
 
-  // Uniforms
-  const uniforms = {
-    u_time: { value: 0.0 },
-    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-  };
-
-  // Material con shader de caleidoscopio
   const material = new THREE.ShaderMaterial({
-    uniforms,
     vertexShader: `
       void main() {
         gl_Position = vec4(position, 1.0);
       }
     `,
     fragmentShader: `
-      uniform float u_time;
-      uniform vec2 u_resolution;
-
-      #define PI 3.14159265359
+      precision mediump float;
 
       void main() {
-        // Coordenadas normalizadas centradas
-        vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
+        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+      }
+    `
+  });
 
-        // Coordenadas polares
-        float r = length(uv);
-        float a = atan(uv.y, uv.x);
+  const quad = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 2),
+    material
+  );
 
-        // Cantidad de segmentos (como espejos)
-        float segments = 8.0;
-        float slice = 2.0 * PI / segments;
+  scene.add(quad);
 
-        // Kaleidoscopio: módulo + espejo
-        a = mod(a, slice);
-        a = abs(a - slice * 0.5);
+  renderer.render(scene, camera);
+</script>
 
-        // Volver a cartesiano
-        vec2 p = vec2(cos(a), sin(a)) * r;
+</body>
+</html>
