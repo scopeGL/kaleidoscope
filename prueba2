@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caleidoscopio WebGL 2 </title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="glCanvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script>
+        // --- Código JavaScript para WebGL (usando p5.js como ejemplo) ---
+        function setup() {
+            // Crea un canvas que ocupa toda la ventana
+            createCanvas(windowWidth, windowHeight, WEBGL);
+            angleMode(DEGREES); // Para usar grados en rotaciones
+        }
+
+        function draw() {
+            background(0); // Fondo negro
+
+            // Define el número de "espejos" o segmentos
+            let segments = 12;
+            let angle = 360 / segments;
+
+            // Usa translate y rotate para posicionar y orientar las formas
+            translate(0, 0, 0); // Centra la vista
+
+            // Itera para crear los segmentos del caleidoscopio
+            for (let i = 0; i < segments; i++) {
+                rotateY(angle); // Rota el plano de dibujo
+                
+                // Dibuja una forma básica (un triángulo, un rectángulo, etc.)
+                // Esta forma se reflejará en los otros segmentos
+                fill(255, 0, 100, 150); // Color semi-transparente
+                stroke(255);
+                beginShape();
+                vertex(-width/4, -height/4, 0); // Ejemplo de vértice
+                vertex(width/4, -height/4, 0);
+                vertex(0, height/4, 0);
+                endShape(CLOSE);
+
+                // También puedes usar texturas aquí para un efecto más rico
+                // rotateX/Y/Z para efectos 3D más complejos
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>
