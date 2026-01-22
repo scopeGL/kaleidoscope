@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>WebGL Test</title>
+  <title>Kaleidoscopio WebGL</title>
   <style>
     html, body {
       margin: 0;
@@ -23,4 +23,53 @@
 
 <script>
   // Escena
-  const s
+  const scene = new THREE.Scene();
+
+  // Cámara ortográfica
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+  camera.position.z = 1;
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  document.body.appendChild(renderer.domElement);
+
+  // Uniforms
+  const uniforms = {
+    u_time: { value: 0.0 },
+    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+  };
+
+  // Material con shader de caleidoscopio
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      void main() {
+        gl_Position = vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float u_time;
+      uniform vec2 u_resolution;
+
+      #define PI 3.14159265359
+
+      void main() {
+        // Coordenadas normalizadas centradas
+        vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
+
+        // Coordenadas polares
+        float r = length(uv);
+        float a = atan(uv.y, uv.x);
+
+        // Cantidad de segmentos (como espejos)
+        float segments = 8.0;
+        float slice = 2.0 * PI / segments;
+
+        // Kaleidoscopio: módulo + espejo
+        a = mod(a, slice);
+        a = abs(a - slice * 0.5);
+
+        // Volver a cartesiano
+        vec2 p = vec2(cos(a), sin(a)) * r;
