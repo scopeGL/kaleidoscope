@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>WebGL Test</title>
+  <title>Kaleidoscopio WebGL</title>
   <style>
     html, body {
       margin: 0;
@@ -23,14 +23,18 @@
 
 <script>
   const scene = new THREE.Scene();
-
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
+  const uniforms = {
+    u_time: { value: 0.0 }
+  };
+
   const material = new THREE.ShaderMaterial({
+    uniforms,
     vertexShader: `
       void main() {
         gl_Position = vec4(position, 1.0);
@@ -38,22 +42,9 @@
     `,
     fragmentShader: `
       precision mediump float;
+      uniform float u_time;
 
       void main() {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-      }
-    `
-  });
-
-  const quad = new THREE.Mesh(
-    new THREE.PlaneGeometry(2, 2),
-    material
-  );
-
-  scene.add(quad);
-
-  renderer.render(scene, camera);
-</script>
-
-</body>
-</html>
+        vec3 color = vec3(
+          0.5 + 0.5 * sin(u_time),
+          0.5 + 0.5 * sin(u_time + 2_*
