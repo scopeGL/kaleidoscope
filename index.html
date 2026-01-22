@@ -1,10 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Prueba</title>
+  <meta charset="UTF-8" />
+  <title>Kaleidoscope WebGL</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hola, GitHub Pages</h1>
+
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
+<script>
+  // Escena
+  const scene = new THREE.Scene();
+
+  // Cámara
+  const camera = new THREE.OrthographicCamera(
+    -1, 1, 1, -1, 0, 1
+  );
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Ajuste al redimensionar
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Plano que ocupa toda la pantalla
+  const geometry = new THREE.PlaneGeometry(2, 2);
+
+  // Shader mínimo (todavía SIN caleidoscopio)
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      u_time: { value: 0.0 }
+    },
+    vertexShader: `
+      void main() {
+        gl_Position = vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float u_time;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / vec2( window.innerWidth, window.innerHeight );
+        gl_FragColor = vec4(uv, 0.5 + 0.5*sin(u_time), 1.0);
+      }
+    `
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  // Animación
+  function animate(time) {
+    material.uniforms.u_time.value = time * 0.001;
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+
 </body>
 </html>
