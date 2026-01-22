@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Caleidoscopio WebGL Dinámico</title>
+<title>Caleidoscopio WebGL Nítido</title>
 <style>
 html, body {
   margin: 0;
@@ -56,8 +56,8 @@ const material = new THREE.ShaderMaterial({
       vec2 uv = (gl_FragCoord.xy / u_resolution) * 2.0 - 1.0;
       uv.x *= u_resolution.x / u_resolution.y;
 
-      // ROTACIÓN MUY VISIBLE
-      float rot = u_time * 0.6;
+      // ROTACIÓN CLARA
+      float rot = u_time * 0.5;
       float c = cos(rot);
       float s = sin(rot);
       uv = mat2(c, -s, s, c) * uv;
@@ -66,25 +66,35 @@ const material = new THREE.ShaderMaterial({
       float a = atan(uv.y, uv.x);
 
       // CALEIDOSCOPIO
-      float slices = 12.0;
+      float slices = 14.0;
       float slice = 2.0 * PI / slices;
       a = mod(a, slice);
       a = abs(a - slice * 0.5);
 
-      // ZOOM PULSANTE
-      r *= 1.0 + 0.25 * sin(u_time * 1.5);
+      // ZOOM SUAVE
+      r *= 1.0 + 0.15 * sin(u_time * 1.2);
 
       vec2 p = vec2(cos(a), sin(a)) * r;
 
-      // PATRÓN INTERNO
-      float pattern = sin(p.x * 10.0) * sin(p.y * 10.0);
+      // FACETAS DURAS (DETALLE)
+      vec2 cell = fract(p * 12.0) - 0.5;
+      float dist = max(abs(cell.x), abs(cell.y));
 
-      // COLOR CAMBIANTE
-      vec3 color = palette(pattern * 0.3 + u_time * 0.15);
+      // BORDES NÍTIDOS
+      float edge = smoothstep(0.48, 0.46, dist);
 
-      // CONTRASTE / NITIDEZ
-      color *= smoothstep(0.9, 0.2, r);
-      color = pow(color, vec3(0.8));
+      // ALTA FRECUENCIA
+      float detail = sin(p.x * 20.0) * sin(p.y * 20.0);
+
+      float t = detail * 0.3 + u_time * 0.15;
+
+      vec3 color = palette(t);
+
+      // COMBINAR FACETA + COLOR
+      color *= edge;
+
+      // CONTRASTE FINAL
+      color = pow(color, vec3(0.7));
 
       gl_FragColor = vec4(color, 1.0);
     }
@@ -111,4 +121,3 @@ animate();
 
 </body>
 </html>
-
