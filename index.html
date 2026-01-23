@@ -1,68 +1,136 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset=utf-8>
-		<title>Kaleidoscope</title>
-		<style>
-			body { margin: 0; overflow: hidden; background-color: black;}
-			canvas { width: 100%; height: 100% }
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Caleidoscopio WebGL</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
 
-			#brandTag
-			{
-				position: fixed;
-				display: block;
-				top: 0px;
-				left: 30px;
-				color: white;
-				background-color: rgba(50, 50, 50, 0.5);
-				z-index: 1000;
-				text-align: center;
-				padding: 12px 12px 12px 12px;
-				font-size: 18px;
-				font-family: "Helvetica", sans-serif;
-				transition-property: color, background-color, padding;
-				transition-duration: 0.3s;
-			}
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 
-			#brandTag:hover 
-			{
-				color: black;
-				background-color: white;
-				padding: 24px 12px 12px 12px;
-			}
-		</style>
-	</head>
-	<body>
-		
-		<a href="http://www.colordodge.com">
-			<div id="brandTag">Colordodge</div>
-		</a>
-		<script type="text/javascript">
-			document.onkeydown = function(e) 
-			{
-			    e = e || window.event;
+<!-- Controls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/TrackballControls.js"></script>
 
-			    if (e.keyCode == '72') 
-			    {
-			    	var brandTag = document.getElementById("brandTag");
-			    	if (brandTag.style.visibility == "hidden") {
-			    		brandTag.style.visibility = "visible";
-			    	} else {
-			    		brandTag.style.visibility = "hidden";
-			    	}
-			    }
-			}
-		</script>
-		
+<!-- Stats -->
+<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
 
-		<script src="js/three.min.js"></script>
-		<script src="js/controls/OrbitControls.js"></script>
-		<script src="js/controls/TrackballControls.js"></script>
-		<script src="js/dat.gui.min.js"></script>
-		<script src="js/stats.min.js"></script>
-		<script src="js/TorusKnotShape.js"></script>
-		<script src="script.js"></script>
+<!-- dat.GUI -->
+<script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.min.js"></script>
 
-		
-	</body>
+<!-- Tu script principal -->
+<script>
+/* === Aquí va tu código tal como lo compartiste === */
+
+// new comment
+
+var stats = new Stats();
+stats.showPanel(0);
+// document.body.appendChild(stats.dom);
+
+var bufferSize = 1024;
+var bufferWidth = bufferSize;
+var bufferHeight = bufferSize;
+
+var showTexture = false;
+var speed = 0.5;
+var saturation = 1.0;
+var lightness = 1.0;
+var isPaused = false;
+var shapeZoom = 2.2;
+
+var scene = new THREE.Scene();
+
+var bufferCamera = new THREE.PerspectiveCamera(75, bufferWidth / bufferHeight, 0.1, 1000);
+bufferCamera.position.z = shapeZoom;
+
+var camera = new THREE.OrthographicCamera( window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000 );
+camera.position.z = 5;
+
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+var controls = new THREE.TrackballControls(bufferCamera, renderer.domElement);
+controls.noZoom = true;
+controls.dynamicDampingFactor = 0.1;
+controls.rotateSpeed = 1;
+
+var controls2 = new THREE.OrbitControls(camera, renderer.domElement);
+controls2.enableZoom = true;
+controls2.enableRotate = false;
+controls2.zoomSpeed = 0.3;
+controls2.minZoom = 0.2;
+controls2.maxZoom = 2;
+controls2.enablePan = false;
+
+var bufferScene = new THREE.Scene();
+var bufferTexture = new THREE.WebGLRenderTarget(bufferWidth, bufferHeight, { minFilter: THREE.LinearMipMapLinearFilter, magFilter: THREE.LinearFilter, antialias: true });
+
+// Aquí asumimos que TorusKnotShape ya está definido en tu script.
+// Si no, deberías incluirlo antes de createShapes()
+
+var numAxes = 12;
+
+var allShapes = [];
+var numShapes = 10;
+var complexity = 5;
+
+function createShapes() {
+    for (var i = 0; i < numShapes; i++) {
+        var shape = new TorusKnotShape();
+        shape.update();
+        bufferScene.add(shape.mesh);
+        allShapes[i] = shape;
+
+        if (i < complexity) shape.mesh.visible = true;
+        else shape.mesh.visible = false;
+    }
+}
+createShapes();
+
+var ambientLight = new THREE.AmbientLight(0x808080);
+bufferScene.add(ambientLight);
+
+var pointLight = new THREE.PointLight(0xaaaaaa);
+pointLight.position.set(0, 50, 200);
+bufferScene.add(pointLight);
+
+var pointLight2 = new THREE.PointLight(0x404040);
+pointLight2.position.set(0, 50, -200);
+bufferScene.add(pointLight2);
+
+// Main scene lights
+var ambientLight2 = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight2);
+
+var pointLight3 = new THREE.PointLight(0xffffff);
+pointLight3.position.set(-100, 200, 100);
+scene.add(pointLight3);
+
+// Tile holder
+var tileHolder;
+var tileMat = new THREE.MeshBasicMaterial({ map: bufferTexture.texture, side: THREE.DoubleSide });
+
+// Aquí va tu función updateGridGeometry() y todo lo demás tal como lo compartiste
+updateGridGeometry();
+
+// Test plane
+var planeMat = new THREE.MeshBasicMaterial({ map: bufferTexture.texture, side: THREE.DoubleSide });
+var planeGeo = new THREE.PlaneGeometry(bufferWidth / 2, bufferHeight / 2);
+var planeObj = new THREE.Mesh(planeGeo, planeMat);
+scene.add(planeObj);
+planeObj.visible = false;
+
+// GUI y demás funciones (randomize, update, render) también van tal como las compartiste
+// ... copia aquí el resto de tu código ...
+
+</script>
+
+</body>
 </html>
