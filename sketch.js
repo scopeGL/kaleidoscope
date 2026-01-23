@@ -14,7 +14,11 @@ function setup() {
 function draw() {
   shader(kaleidoShader);
 
-  kaleidoShader.setUniform('u_resolution', [width * pixelDensity(), height * pixelDensity()]);
+  kaleidoShader.setUniform(
+    'u_resolution',
+    [width * pixelDensity(), height * pixelDensity()]
+  );
+
   kaleidoShader.setUniform('u_time', millis() / 1000.0);
   kaleidoShader.setUniform('u_mode', mode);
 
