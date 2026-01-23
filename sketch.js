@@ -15,6 +15,7 @@ function draw() {
   for (let i = 0; i < slices; i++) {
     rotate(angle);
     stroke(255);
-    line(0, 0, 200, 0);
+    line(0, 0, 300, 0);
   }
 }
+
