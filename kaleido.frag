@@ -4,34 +4,38 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform int u_mode;
 
-#define PI 3.14159265359
-
-// Rotación 2D
-mat2 rot(float a) {
-  float s = sin(a);
-  float c = cos(a);
-  return mat2(c, -s, s, c);
-}
-
-// Color Dodge seguro
-vec3 colorDodge(vec3 base, vec3 blend) {
-  blend = clamp(blend, 0.0, 0.92);
-  return base / (1.0 - blend);
+vec2 kaleido(vec2 uv, float slices) {
+  float r = length(uv);
+  float a = atan(uv.y, uv.x);
+  float tau = 6.28318530718;
+  a = mod(a, tau / slices);
+  a = abs(a - tau / slices * 0.5);
+  return vec2(cos(a), sin(a)) * r;
 }
 
 void main() {
+  vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
 
-  // =========================
-  // Coordenadas normalizadas
-  // =========================
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  uv = uv * 2.0 - 1.0;
-  uv.x *= u_resolution.x / u_resolution.y;
+  float slices = (u_mode == 0)
+    ? 8.0 + sin(u_time * 0.5) * 2.0        // vidrio pulido
+    : 24.0 + sin(u_time * 2.0) * 6.0;      // facetado extremo
 
-  float r = length(uv);
-  float a = atan(uv.y, uv.x);
+  uv = kaleido(uv, slices);
 
-  // =========================
-  // Kaleidoscopio real
-  // =========
+  float c1 = sin(uv.x * 10.0 + u_time);
+  float c2 = sin(uv.y * 10.0 - u_time);
+  float c3 = sin(length(uv) * 15.0);
+
+  vec3 color = vec3(c1, c2, c3) * 0.5 + 0.5;
+
+  // Vidrio pulido vs facetado
+  if (u_mode == 0) {
+    color = smoothstep(0.0, 1.0, color);
+  } else {
+    color = floor(color * 6.0) / 6.0;
+  }
+
+  gl_FragColor = vec4(color, 1.0);
+}
