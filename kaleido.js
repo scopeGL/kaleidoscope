@@ -1,7 +1,7 @@
 let img;
 
 function preload() {
-  img = loadImage('test.jpg');
+  img = loadImage('imagen.jpg');
 }
 
 function setup() {
@@ -25,5 +25,6 @@ function draw() {
     pop();
   }
 }
+
 
 
