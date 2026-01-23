@@ -1,12 +1,27 @@
-document.body.style.background = "black";
-alert("ESTE ES EL ARCHIVO CORRECTO");
+let img;
+
+function preload() {
+  img = loadImage('imagen.jpg'); // después ponemos tu imagen real
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(30);
+  angleMode(DEGREES);
+  imageMode(CENTER);
 }
 
 function draw() {
-  stroke(255);
-  line(0, 0, width, height);
+  background(0);
+  translate(width / 2, height / 2);
+
+  let slices = 12;
+  let angle = 360 / slices;
+
+  for (let i = 0; i < slices; i++) {
+    rotate(angle);
+    push();
+    scale(1, i % 2 === 0 ? 1 : -1);
+    image(img, 0, 0, width / 3, height / 3);
+    pop();
+  }
 }
