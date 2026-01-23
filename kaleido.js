@@ -1,6 +1,13 @@
+let img;
+
+function preload() {
+  img = loadImage('test.jpg');
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
+  imageMode(CENTER);
 }
 
 function draw() {
@@ -10,10 +17,13 @@ function draw() {
   let slices = 12;
   let angle = 360 / slices;
 
-  stroke(255);
-
   for (let i = 0; i < slices; i++) {
     rotate(angle);
-    line(0, 0, 300, 0);
+    push();
+    scale(1, i % 2 === 0 ? 1 : -1);
+    image(img, 0, 0, 300, 300);
+    pop();
   }
 }
+
+
