@@ -1,7 +1,7 @@
 let img;
 
 function preload() {
-  img = loadImage('test.jpg'); // imagen chica, ya comprobada
+  img = loadImage('imagen.jpg'); // imagen chica, ya comprobada
 }
 
 function setup() {
@@ -39,3 +39,4 @@ function draw() {
     pop();
   }
 }
+
