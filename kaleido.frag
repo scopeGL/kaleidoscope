@@ -6,48 +6,49 @@ uniform vec2 u_resolution;
 uniform float u_time;
 uniform int u_mode;
 
-vec2 kaleido(vec2 uv, float slices) {
+#define TAU 6.28318530718
+
+vec2 kaleido(vec2 uv, float n) {
   float r = length(uv);
   float a = atan(uv.y, uv.x);
-  float tau = 6.28318530718;
+  float sector = TAU / n;
 
-  a = mod(a, tau / slices);
-  a = abs(a - tau * 0.5 / slices);
+  a = mod(a, sector);
+  a = abs(a - sector * 0.5);
 
   return vec2(cos(a), sin(a)) * r;
 }
 
-float edgeEnhance(float v, float sharpness) {
-  return smoothstep(0.5 - sharpness, 0.5 + sharpness, v);
+// Faceta geométrica dura
+float facet(vec2 p, float scale) {
+  p *= scale;
+  vec2 g = abs(fract(p) - 0.5);
+  float d = max(g.x, g.y);
+  return d;
 }
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
 
-  float slices = (u_mode == 0)
-    ? 12.0
-    : 36.0;
-
+  float slices = (u_mode == 0) ? 12.0 : 36.0;
   uv = kaleido(uv, slices);
 
-  // Base patterns (más frecuencia = más nitidez)
-  float p1 = sin(uv.x * 20.0 + u_time);
-  float p2 = sin(uv.y * 20.0 - u_time);
-  float p3 = sin(length(uv) * 30.0);
+  float f = facet(uv + vec2(sin(u_time)*0.2), 8.0);
 
-  // Aristas ópticas
-  float e1 = edgeEnhance(p1, 0.02);
-  float e2 = edgeEnhance(p2, 0.02);
-  float e3 = edgeEnhance(p3, 0.02);
+  // Arista óptica dura
+  float edge = smoothstep(0.15, 0.02, f);
 
-  vec3 color = vec3(e1, e2, e3);
+  // Color cristalino
+  vec3 base = vec3(
+    sin(uv.x * 6.0 + u_time),
+    sin(uv.y * 6.0 - u_time),
+    sin(length(uv) * 10.0)
+  ) * 0.5 + 0.5;
 
-  // Vidrio pulido vs facetado
-  if (u_mode == 0) {
-    color = pow(color, vec3(0.8)); // más contraste
-  } else {
-    color = floor(color * 8.0) / 8.0; // facetas duras
-  }
+  vec3 color = base * edge;
+
+  // Contraste final
+  color = pow(color, vec3(0.7));
 
   gl_FragColor = vec4(color, 1.0);
 }
