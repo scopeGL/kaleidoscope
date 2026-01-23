@@ -1,5 +1,3 @@
-// kaleido.vert — COMPATIBLE con p5.js
-
 #ifdef GL_ES
 precision highp float;
 #endif
