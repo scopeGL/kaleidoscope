@@ -1,21 +1,23 @@
+let kaleidoShader;
+
+function preload() {
+  kaleidoShader = loadShader('kaleido.vert', 'kaleido.frag');
+}
+
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  angleMode(DEGREES);
-  noLoop();
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  noStroke();
 }
 
 function draw() {
-  background(30);
+  shader(kaleidoShader);
 
-  translate(width / 2, height / 2);
+  kaleidoShader.setUniform('u_resolution', [width, height]);
+  kaleidoShader.setUniform('u_time', millis() / 1000.0);
 
-  let slices = 12;
-  let angle = 360 / slices;
-
-  for (let i = 0; i < slices; i++) {
-    rotate(angle);
-    stroke(255);
-    line(0, 0, 300, 0);
-  }
+  rect(-width / 2, -height / 2, width, height);
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
