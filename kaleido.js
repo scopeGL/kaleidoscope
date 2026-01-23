@@ -42,4 +42,13 @@ function drawWedge(r, index) {
 
   for (let i = 0; i <= 10; i++) {
     let a = map(i, 0, 10, -15, 15);
-    let rr = r * noise(i * 0.2, fr
+    let rr = r * noise(i * 0.2, frameCount * 0.01);
+    vertex(
+      rr * cos(a),
+      rr * sin(a),
+      sin(frameCount * 0.02) * 50
+    );
+  }
+
+  endShape(CLOSE);
+}
