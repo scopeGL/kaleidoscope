@@ -1,10 +1,20 @@
 function setup() {
-  createCanvas(400, 400);
-  background(220);
+  createCanvas(windowWidth, windowHeight);
+  angleMode(DEGREES);
+  noLoop();
 }
 
 function draw() {
-  fill(255, 0, 0);
-  noStroke();
-  ellipse(200, 200, 100, 100);
+  background(30);
+
+  translate(width / 2, height / 2);
+
+  let slices = 12;
+  let angle = 360 / slices;
+
+  for (let i = 0; i < slices; i++) {
+    rotate(angle);
+    stroke(255);
+    line(0, 0, 200, 0);
+  }
 }
