@@ -1,9 +1,11 @@
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 attribute vec3 aPosition;
 
 void main() {
-  gl_Position = vec4(aPosition, 1.0);
+  vec4 position = vec4(aPosition, 1.0);
+  position.xy = position.xy * 2.0 - 1.0;
+  gl_Position = position;
 }
