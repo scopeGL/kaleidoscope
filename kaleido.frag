@@ -10,8 +10,10 @@ vec2 kaleido(vec2 uv, float slices) {
   float r = length(uv);
   float a = atan(uv.y, uv.x);
   float tau = 6.28318530718;
+
   a = mod(a, tau / slices);
   a = abs(a - tau / slices * 0.5);
+
   return vec2(cos(a), sin(a)) * r;
 }
 
@@ -19,21 +21,22 @@ void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
 
   float slices = (u_mode == 0)
-    ? 8.0 + sin(u_time * 0.5) * 2.0        // vidrio pulido
-    : 24.0 + sin(u_time * 2.0) * 6.0;      // facetado extremo
+    ? 8.0 + sin(u_time * 0.6) * 2.0      // vidrio pulido
+    : 24.0 + sin(u_time * 2.0) * 6.0;    // facetado extremo
 
   uv = kaleido(uv, slices);
 
   float c1 = sin(uv.x * 10.0 + u_time);
   float c2 = sin(uv.y * 10.0 - u_time);
-  float c3 = sin(length(uv) * 15.0);
+  float c3 = sin(length(uv) * 14.0);
 
   vec3 color = vec3(c1, c2, c3) * 0.5 + 0.5;
 
-  // Vidrio pulido vs facetado
   if (u_mode == 0) {
+    // vidrio pulido
     color = smoothstep(0.0, 1.0, color);
   } else {
+    // facetado extremo
     color = floor(color * 6.0) / 6.0;
   }
 
