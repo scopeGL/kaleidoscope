@@ -12,32 +12,41 @@ vec2 kaleido(vec2 uv, float slices) {
   float tau = 6.28318530718;
 
   a = mod(a, tau / slices);
-  a = abs(a - tau / slices * 0.5);
+  a = abs(a - tau * 0.5 / slices);
 
   return vec2(cos(a), sin(a)) * r;
+}
+
+float edgeEnhance(float v, float sharpness) {
+  return smoothstep(0.5 - sharpness, 0.5 + sharpness, v);
 }
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / u_resolution.y;
 
   float slices = (u_mode == 0)
-    ? 8.0 + sin(u_time * 0.6) * 2.0      // vidrio pulido
-    : 24.0 + sin(u_time * 2.0) * 6.0;    // facetado extremo
+    ? 12.0
+    : 36.0;
 
   uv = kaleido(uv, slices);
 
-  float c1 = sin(uv.x * 10.0 + u_time);
-  float c2 = sin(uv.y * 10.0 - u_time);
-  float c3 = sin(length(uv) * 14.0);
+  // Base patterns (más frecuencia = más nitidez)
+  float p1 = sin(uv.x * 20.0 + u_time);
+  float p2 = sin(uv.y * 20.0 - u_time);
+  float p3 = sin(length(uv) * 30.0);
 
-  vec3 color = vec3(c1, c2, c3) * 0.5 + 0.5;
+  // Aristas ópticas
+  float e1 = edgeEnhance(p1, 0.02);
+  float e2 = edgeEnhance(p2, 0.02);
+  float e3 = edgeEnhance(p3, 0.02);
 
+  vec3 color = vec3(e1, e2, e3);
+
+  // Vidrio pulido vs facetado
   if (u_mode == 0) {
-    // vidrio pulido
-    color = smoothstep(0.0, 1.0, color);
+    color = pow(color, vec3(0.8)); // más contraste
   } else {
-    // facetado extremo
-    color = floor(color * 6.0) / 6.0;
+    color = floor(color * 8.0) / 8.0; // facetas duras
   }
 
   gl_FragColor = vec4(color, 1.0);
