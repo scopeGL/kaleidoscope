@@ -1,30 +1,41 @@
 let img;
 
 function preload() {
-  img = loadImage('imagen.jpg');
+  img = loadImage('test.jpg'); // imagen chica, ya comprobada
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES);
-  imageMode(CENTER);
+  textureMode(NORMAL);
+  noStroke();
 }
 
 function draw() {
   background(0);
-  translate(width / 2, height / 2);
 
   let slices = 12;
   let angle = 360 / slices;
+  let radius = min(width, height) * 0.6;
+
+  rotateZ(frameCount * 0.1);
 
   for (let i = 0; i < slices; i++) {
-    rotate(angle);
     push();
-    scale(1, i % 2 === 0 ? 1 : -1);
-    image(img, 0, 0, 300, 300);
+    rotateZ(i * angle);
+
+    if (i % 2 === 1) {
+      scale(1, -1, 1);
+    }
+
+    beginShape();
+    texture(img);
+
+    vertex(0, 0, 0, 0.5, 0.5);
+    vertex(radius, -radius, 0, 1, 0);
+    vertex(radius, radius, 0, 1, 1);
+
+    endShape(CLOSE);
     pop();
   }
 }
-
-
-
