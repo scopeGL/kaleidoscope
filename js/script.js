@@ -146,10 +146,10 @@ gui.close();
 envMapSelectControl.onChange(function(value){
 	
 	var urls = [
-		  'images/cubeMaps/1/pos-x.png',
-		  'images/cubeMaps/1/neg-x.png',
-		  'images/cubeMaps/1/pos-y.png',
-		  'images/cubeMaps/1/neg-y.png',
+		  'images/cubeMaps/'+ envMapSelect + '/pos-x.png',
+		  'images/cubeMaps/'+ envMapSelect + '/neg-x.png',
+		  'images/cubeMaps/'+ envMapSelect + '/pos-y.png',
+		  'images/cubeMaps/'+ envMapSelect + '/neg-y.png',
 		  'images/cubeMaps/' + envMapSelect + '/pos-z.png',
 		  'images/cubeMaps/' + envMapSelect + '/neg-z.png'
 		];
@@ -289,6 +289,7 @@ renderer.domElement.addEventListener('touchend', function() {
 	isDragging = false;
 
 });
+
 
 
 
