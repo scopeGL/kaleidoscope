@@ -146,7 +146,7 @@ gui.close();
 envMapSelectControl.onChange(function(value){
 	
 	var urls = [
-		  'images/cubeMaps/' + envMapSelect + '/pos-x.png',
+		  'images/cubeMaps/pos-x.png',
 		  'images/cubeMaps/' + envMapSelect + '/neg-x.png',
 		  'images/cubeMaps/' + envMapSelect + '/pos-y.png',
 		  'images/cubeMaps/' + envMapSelect + '/neg-y.png',
@@ -289,5 +289,6 @@ renderer.domElement.addEventListener('touchend', function() {
 	isDragging = false;
 
 });
+
 
 
